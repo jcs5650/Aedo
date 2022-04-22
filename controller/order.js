@@ -21,6 +21,12 @@ export async function createOrder(req, res) {
   res.status(201).json({"status": "201", order});
 }
 
+export async function getAllOrder(req, res) {
+
+  const orders = await orderRepository.findAllOrder();
+  res.status(200).json({"status" : "200", orders});
+}
+
 export async function getMyOrder(req, res) {
   const order = await orderRepository.findMyOrder(req.userId);
   if(!order) {
@@ -34,8 +40,11 @@ export async function searchOrder(req, res) {
   if (req.admin == false) {
     return res.status(403).json({"status": "403"});
   }
-  const value = req.query.value;
-  const order = await orderRepository.findOrder(value);
 
-  res.status(200).json({"status": "200", order});
+  const value = req.query.value;
+  const result = await ( value
+    ? orderRepository.findOrder(value)
+    : orderRepository.findAllOrder());
+
+  res.status(200).json({"status": "200", result});
 }

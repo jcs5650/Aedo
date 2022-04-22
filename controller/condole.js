@@ -22,7 +22,6 @@ export async function createCondoleMessage(req, res) {
   } catch (error) {
     return res.status(400).json({"status" : "400"});
   }
-  console.log(req.admin);
   res.status(201).json({"status": "201", condolMessage})
 }
 

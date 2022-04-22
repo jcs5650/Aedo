@@ -6,25 +6,24 @@ import { config } from '../config.js';
 import { findAuthTerms } from '../data/app.js';
 
 export async function singup(req, res) {
-  const {phone, birth, name, terms}  = req.body;
+  const {phone, birth, name, terms, smsnumber}  = req.body;
   const admin = false;
   const user = await authRepository.findByPhon(phone);
   if (user) {
     return res.status(400).json({"status": "400"});
   }
 
-  try {
-    var userid = await authRepository.saveUser( {
-      phone,
-      birth,
-      name,
-      admin,
-      terms
-    });
-    
-  } catch (error) {
-    return res.status(400).json({"status" : "400"});
+  if (smsnumber != await authRepository.findSms(phone)) {
+    return res.status(401).json({"status": "401"});
   }
+
+  var userid = await authRepository.saveUser( {
+    phone,
+    birth,
+    name,
+    admin,
+    terms
+    });
   
   const accessToken = createAccessJwt(userid);
   const refreshToken = createRefeshJwt(userid);
@@ -35,8 +34,12 @@ export async function singup(req, res) {
 
 export async function login(req, res, next) {
   const user = await authRepository.findByPhon(req.body.phone);
+  const smsnumber = req.body.smsnumber;
   if (!user) {
     return res.status(404).json({"status": "404"});
+  }
+  if (smsnumber != await authRepository.findSms(req.body.phone)) {
+    return res.status(403).json({"status": "401"});
   }
   const accessToken = createAccessJwt(user.id);
   const newRefreshToken = createRefeshJwt(user.id);
@@ -94,11 +97,17 @@ export async function getAuthTerms(req, res) {
 }
 
 
-export function sendsms (req, res) {
+export async function sendsms (req, res) {
   const userphone = req.body.phone;
   const user_auth_number = Math.floor(Math.random() * 8999) + 1000; // 인증번호
   send_message(userphone, user_auth_number);
-  res.status(200).json({"status": "200", user_auth_number});
+  const tmp = await authRepository.smsExists(userphone);
+  if (!tmp) {
+    await authRepository.saveSms(userphone, user_auth_number);
+  } else {
+    await authRepository.updateSms(userphone, user_auth_number);
+  }
+  res.status(201).json({"status": "201"});
 }
 
 export function createAccessJwt(id) {

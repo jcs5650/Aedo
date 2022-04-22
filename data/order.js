@@ -26,6 +26,10 @@ export async function saveOrder(order) {
   return new Orders(order).save().then((data) => data);
 }
 
+export async function findAllOrder() {
+  return Orders.find();
+}
+
 export async function findOrder(value) {
   return Orders.find({$or : 
     [{"receiver.name": value},

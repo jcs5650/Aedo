@@ -91,6 +91,7 @@ export async function updateUserRequest(req, res) {
   const updatedRequest = await centerRepository.updateRequest(id, title, content);
   res.status(200).json(({"status":"200", updatedRequest}))
 }
+
 export async function removeUserRequest(req, res) {
   const id = req.params.id;
   const userRequest = await centerRepository.findRequestById(id);

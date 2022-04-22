@@ -11,6 +11,13 @@ const users = new Mongoose.Schema( {
   versionKey: false
 });
 
+const sms = new Mongoose.Schema( {
+  phone: {type: String, required: true},
+  number: {type: String, required: true} 
+},{ 
+  versionKey: false
+})
+
 const token = new Mongoose.Schema( {
   refreshtoken: {type: String},
   userid : {type: String}
@@ -25,6 +32,23 @@ useVirtualId(users);
 
 const Token = Mongoose.model('Tokens', token);
 const User = Mongoose.model('Users', users);
+const Sms = Mongoose.model('sms', sms);
+
+export async function saveSms(phone, number) {
+  return new Sms({phone, number}).save().then();
+}
+
+export async function findSms(phone) {
+  return Sms.findOne({phone}).then((data) => data.number);
+}
+
+export async function smsExists(phone) {
+  return Sms.findOne({phone});
+}
+
+export async function updateSms(phone, newNumber) {
+  return Sms.findOneAndUpdate({phone}, {number: newNumber}, {returnOriginal: false});
+}
 
 export async function findAllUser() {
   return User.find().then((data) => data);
