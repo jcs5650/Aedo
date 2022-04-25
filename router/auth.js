@@ -32,4 +32,5 @@ router.get('/terms', authController.getAuthTerms);
 router.get('/admin', isAuth, authController.adminGetUser);
 router.delete('/', isAuth, authController.logout);
 router.post('/sms', validateSms, authController.sendsms);
+
 export default router;
