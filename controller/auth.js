@@ -36,11 +36,17 @@ export async function login(req, res, next) {
   const user = await authRepository.findByPhon(req.body.phone);
   const smsnumber = req.body.smsnumber;
   if (!user) {
-    return res.status(404).json({"status": "404"});
+    if (smsnumber != await authRepository.findSms(req.body.phone)) {
+      return res.status(400).json({"status": "400", "code": 0});
+    } else {
+      return res.status(400).json({"status": "400", "code": 1});
+    }
   }
+
   if (smsnumber != await authRepository.findSms(req.body.phone)) {
-    return res.status(403).json({"status": "401"});
+    return res.status(403).json({"status": "403"});
   }
+
   const accessToken = createAccessJwt(user.id);
   const newRefreshToken = createRefeshJwt(user.id);
   const checkRefreshToken = await authRepository.updateRefreshToken(user.id, newRefreshToken);

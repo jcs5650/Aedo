@@ -18,7 +18,16 @@ app.use(express.json());
 app.use(morgan('tiny'));
 
 
-const options = { // letsencrypt로 받은 인증서 경로를 입력
+// http > https redirect
+app.use(function(req, res, next){
+  if(!req.secure){
+          res.redirect("https://" + "www.aedo.co.kr" + req.url)
+  } else{
+          next()
+  }
+})
+
+const options = { // letsencrypt로 받은 인증서 경로
   ca: fs.readFileSync('/etc/letsencrypt/live/www.aedo.co.kr/fullchain.pem'),
   key: fs.readFileSync('/etc/letsencrypt/live/www.aedo.co.kr/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/www.aedo.co.kr/cert.pem')
@@ -37,15 +46,6 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
   console.log(error);
   res.sendStatus(500);
-})
-
-// http > https 
-app.use(function(req, res, next){
-        if(!req.secure){
-                res.redirect("https://" + "www.aedo.co.kr" + req.url)
-        }else{
-                next()
-        }
 })
 
 connectDB().then(() => {
