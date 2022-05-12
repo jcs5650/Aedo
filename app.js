@@ -2,8 +2,9 @@ import express from 'express'
 import morgan from 'morgan';
 import fs from 'fs';
 import Https from 'https';
+import helmet from 'helmet';
+import cors from 'cors'
 import { connectDB } from './db/db.js';
-import { config } from './config.js';
 import appRouter from './router/app.js';
 import userRouter from './router/auth.js';
 import obituaryRouter from './router/obituary.js';
@@ -15,6 +16,8 @@ const app = express();
 
 app.use(express.static('public'));
 app.use(express.json());
+app.use(helmet());
+app.use(cors());
 app.use(morgan('tiny'));
 
 
